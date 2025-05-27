@@ -1,6 +1,9 @@
 # Build
-obj/
-dist/
+.xmake
+build/
+
+# Debug
+debug/
 
 # IDE
-.vscode
+.vscode/
