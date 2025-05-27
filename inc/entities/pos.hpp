@@ -9,15 +9,16 @@ class PosBuilder : public EntityBuilder {
 public:
     using EntityBuilder::EntityBuilder;
 
-    decltype(auto) pos(Vector2 position) {
+    decltype(auto) pos(Vector2 pos) {
         define_pos();
-        ecs.emplace_comp<PosComp>(entity, position);
+        ecs.emplace_comp<BoundComp>(entity, pos);
         return *this;
     }
 
     decltype(auto) anchor(Vector2 pos, Vector2 anchor) {
         define_pos();
         ecs.emplace_comp<AnchorComp>(entity, pos, anchor);
+        ecs.emplace_comp<BoundComp>(entity, Vector2 {});
         return *this;
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "ecs.hpp"
 
-class ButtonRenderSystem : public System {
+class TextTypesettingSystem : public System {
     using System::System;
 
     void update() override;

@@ -21,10 +21,11 @@ using CompSig = std::bitset<MAX_COMP_COUNT>;
 class System;
 class ECS;
 
-class Comp {};
+struct Comp {
+    virtual ~Comp() = default;
+};
 
-class ICompSet {
-public:
+struct ICompSet {
     virtual ~ICompSet() = default;
 };
 
@@ -34,18 +35,27 @@ public:
     using CPtr = std::shared_ptr<C>;
 
     template <typename... Args>
-    void emplace_comp(Entity entity, Args&&... args) {
+    CPtr& emplace_comp(Entity entity, Args&&... args) {
         prepare_add_comp(entity);
-        comps[size] = std::make_shared<C>(std::forward<Args>(args)...);
+        return comps[size] = std::make_shared<C>(std::forward<Args>(args)...);
     }
 
     CPtr& get_comp(Entity entity) {
-        prepare_get_comp(entity);
+        check_entity(entity);
+        check_comp_exists(entity);
         return comps[entity_to_index[entity]];
     }
 
+    template <typename... Args>
+    CPtr& get_comp_or_emplace(Entity entity, Args&&... args) {
+        check_entity(entity);
+        size_t index = entity_to_index[entity];
+        if (index) return comps[entity_to_index[entity]];
+        return prepare_add_comp(entity, args...);
+    }
+
     void remove_comp(Entity entity) {
-        prepare_get_comp(entity);
+        check_entity(entity);
         size_t index = entity_to_index[entity];
         entity_to_index[entity] = 0;
         size --;
@@ -59,9 +69,12 @@ private:
     std::array<CPtr, MAX_ENTITY_COUNT + 1> comps;
     size_t size = 0;
 
-    void prepare_get_comp(Entity entity) {
+    void check_entity(Entity entity) {
         if (entity < 1 || entity > MAX_ENTITY_COUNT)
             throw std::runtime_error(std::format("Invalid entity ID: {}.", entity));
+    }
+
+    void check_comp_exists(Entity entity) {
         if (! entity_to_index[entity])
             throw std::runtime_error(std::format("Entity {} does not have a {} component.", entity, typeid(C).name()));
     }
@@ -69,7 +82,7 @@ private:
     void prepare_add_comp(Entity entity) {
         if (size >= MAX_ENTITY_COUNT)
             throw std::runtime_error("Maximum number of entities reached.");
-        if (entity_to_index[entity] != 0)
+        if (entity_to_index[entity])
             throw std::runtime_error(std::format("Entity {} already has a {} component.", entity, typeid(C).name()));
         
         ++ size;
@@ -265,8 +278,8 @@ public:
 
     template <typename C>
     requires std::derived_from<C, Comp>
-    void add_comp(Entity entity, C&& comp) {
-        get_comp_set<C>()->add_comp(entity, std::forward<C>(comp));
+    void emplace_comp(Entity entity, C&& comp) {
+        get_comp_set<C>()->emplace_comp(entity, std::forward<C>(comp));
         update_entity_sig<C, true>(entity);
     }
 
@@ -281,6 +294,12 @@ public:
     requires std::derived_from<C, Comp>
     std::shared_ptr<C>& get_comp(Entity entity) {
         return get_comp_set<C>()->get_comp(entity);
+    }
+
+    template <typename C, typename... Args>
+    requires std::derived_from<C, Comp>
+    std::shared_ptr<C>& get_comp_or_emplace(Entity entity, Args&&... args) {
+        return get_comp_set<C>()->get_comp_or_emplace(entity, std::forward<Args>(args)...);
     }
 
     template <typename C>
