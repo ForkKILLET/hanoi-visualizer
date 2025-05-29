@@ -1,6 +1,6 @@
 #pragma once
 #include "core/ecs.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 
 class AnchorSystem : public System {
 public:

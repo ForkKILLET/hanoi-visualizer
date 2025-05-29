@@ -1,5 +1,5 @@
 #include "comps/hanoi.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 #include "core/ecs.hpp"
 
 class HanoiRenderSystem : public System {

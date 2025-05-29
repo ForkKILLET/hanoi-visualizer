@@ -1,6 +1,8 @@
 #include "systems/anchor.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 #include "utils/vector.hpp"
+
+using namespace vec;
 
 void AnchorSystem::update() {
     for (auto $anchor : entities()) {

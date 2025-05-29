@@ -20,10 +20,14 @@ using CompSig = std::bitset<MAX_COMP_COUNT>;
 
 class System;
 class ECS;
+class EntityBuilder;
 
 struct Comp {
     virtual ~Comp() = default;
 };
+
+template <typename C>
+concept is_comp = std::derived_from<C, Comp>;
 
 struct ICompSet {
     virtual ~ICompSet() = default;
@@ -35,23 +39,29 @@ public:
     using CPtr = std::shared_ptr<C>;
 
     template <typename... Args>
-    CPtr& emplace_comp(Entity entity, Args&&... args) {
+    CPtr emplace_comp(Entity entity, Args&&... args) {
         prepare_add_comp(entity);
         return comps[size] = std::make_shared<C>(std::forward<Args>(args)...);
     }
 
-    CPtr& get_comp(Entity entity) {
+    CPtr get_comp(Entity entity) {
         check_entity(entity);
         check_comp_exists(entity);
         return comps[entity_to_index[entity]];
     }
 
+    CPtr get_comp_or_null(Entity entity) {
+        check_entity(entity);
+        if (! entity_to_index[entity]) return nullptr;
+        return comps[entity_to_index[entity]];
+    }
+
     template <typename... Args>
-    CPtr& get_comp_or_emplace(Entity entity, Args&&... args) {
+    CPtr get_comp_or_emplace(Entity entity, Args&&... args) {
         check_entity(entity);
         size_t index = entity_to_index[entity];
         if (index) return comps[entity_to_index[entity]];
-        return prepare_add_comp(entity, args...);
+        return emplace_comp(entity, args...);
     }
 
     void remove_comp(Entity entity) {
@@ -311,13 +321,19 @@ public:
 
     template <typename C>
     requires std::derived_from<C, Comp>
-    std::shared_ptr<C>& get_comp(Entity entity) {
+    std::shared_ptr<C> get_comp(Entity entity) {
         return get_comp_set<C>()->get_comp(entity);
+    }
+
+    template <typename C>
+    requires std::derived_from<C, Comp>
+    std::shared_ptr<C> get_comp_or_null(Entity entity) {
+        return get_comp_set<C>()->get_comp_or_null(entity);
     }
 
     template <typename C, typename... Args>
     requires std::derived_from<C, Comp>
-    std::shared_ptr<C>& get_comp_or_emplace(Entity entity, Args&&... args) {
+    std::shared_ptr<C> get_comp_or_emplace(Entity entity, Args&&... args) {
         return get_comp_set<C>()->get_comp_or_emplace(entity, std::forward<Args>(args)...);
     }
 
@@ -358,6 +374,8 @@ public:
     std::shared_ptr<S> get_system() {
         return system_manager_.get_system<S>();
     }
+
+    EntityBuilder build_entity();
 
 private:
     CompManager comp_manager_ {};

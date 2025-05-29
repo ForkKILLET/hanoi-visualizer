@@ -9,10 +9,10 @@ struct TimerComp : public Comp {
         is_infinite(is_infinite)
     {}
 
-    float time_elapsed {0.0f};
-    bool is_running {true};
+    float time_elapsed { 0.0f };
+    bool is_running { true };
 
     float time_limit;
-    bool is_infinite {true};
+    bool is_infinite { true };
     Delegate<> on_timeout;
 };

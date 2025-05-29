@@ -3,11 +3,10 @@
 #include "systems/hanoi.hpp"
 #include "comps/hanoi.hpp"
 #include "entities/hanoi_disk.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 #include "systems/animation.hpp"
 #include "utils/hanoi.hpp"
 #include "utils/timing_func.hpp"
-#include "utils/vector.hpp"
 
 void HanoiSystem::reset(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, DiskId disk_count) {
     hanoi->disk_count = disk_count;
@@ -28,13 +27,14 @@ void HanoiSystem::reset(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, DiskId dis
     for (DiskId index = 0; index < disk_count; ++ index) {
         DiskId id = disk_count - index - 1;
         hanoi->rods[0].push_back(id);
-        hanoi->disks[id] = HanoiDiskBuilder(ecs)
-            .id(id)
-            .size({
-                disk_width_step * (id + 1),
-                DISK_HEIGHT + 1
-            })
-            .anchor(calc_disk_pos(hanoi, hanoi_bound, 0, index), TOP_CENTER)
+        hanoi->disks[id] = ecs.build_entity()
+            .use<HanoiDiskBuilder>()
+                .id(id)
+                .size({
+                    disk_width_step * (id + 1),
+                    DISK_HEIGHT + 1
+                })
+                .anchor(calc_disk_pos(hanoi, hanoi_bound, 0, index), TOP_CENTER)
             .build();
     }
 }
@@ -58,7 +58,7 @@ void HanoiSystem::apply_step(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, const
             .property = CompLens<Vector2>(ecs, &AnchorComp::pos),
             .from = disk_anchor->pos,
             .to = new_pos,
-            .timing_func = TimingFuncs::linear,
+            .timing_func = TimingFuncs::ease_in_out,
         }
     });
 
@@ -88,10 +88,18 @@ void HanoiSystem::update() {
     }
 }
 
-void HanoiSystem::step(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound) {
-    auto step = hanoi->solution.current_step();
-    if (step) {
-        apply_step(hanoi, hanoi_bound, *step);
+void HanoiSystem::step_next(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound) {
+    if (hanoi->solution.has_next()) {
+        auto step = hanoi->solution.current_step();
+        apply_step(hanoi, hanoi_bound, step);
         hanoi->solution.next();
+    }
+}
+
+void HanoiSystem::step_prev(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound) {
+    if (hanoi->solution.has_prev()) {
+        hanoi->solution.prev();
+        auto step = hanoi->solution.current_step();
+        unapply_step(hanoi, hanoi_bound, step);
     }
 }

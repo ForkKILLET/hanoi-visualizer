@@ -1,6 +1,6 @@
 #include "core/ecs.hpp"
 #include "entities/pos.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 #include "comps/hanoi.hpp"
 #include "comps/timer.hpp"
 #include "systems/hanoi.hpp"
@@ -22,7 +22,7 @@ public:
         auto hanoi_bound = ecs.get_comp<BoundComp>(entity);
         ecs.emplace_comp<TimerComp>(entity, Delegate<> {
             [=]() {
-                hanoi_system->step(hanoi, hanoi_bound);
+                if (hanoi->is_playing) hanoi_system->step_next(hanoi, hanoi_bound);
             }
         }, 0.6f);
         return entity;

@@ -1,6 +1,6 @@
 #include "systems/hanoi_disk_render.hpp"
 #include "comps/hanoi_disk.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 #include "raylib.h"
 #include <string>
 
@@ -9,7 +9,7 @@ void HanoiDiskRenderSystem::update() {
         auto disk = ecs.get_comp<HanoiDiskComp>($disk);
         auto bound = ecs.get_comp<BoundComp>($disk);
 
-        auto rec = bound->to_rec();
+        auto rec = bound->get_rec();
         DrawRectangleRec(rec, WHITE);
         DrawRectangleLinesEx(rec, 1, BLACK);
 

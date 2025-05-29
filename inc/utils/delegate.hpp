@@ -1,4 +1,5 @@
 #pragma once
+#include <concepts>
 #include <cstdint>
 #include <functional>
 #include <set>
@@ -8,8 +9,10 @@ class UniqueFunction {
 public:
     using Fn = std::function<Ret (Args...)>;
 
-    UniqueFunction(Fn func) :
-        func(func),
+    template <typename F>
+    requires std::convertible_to<F, Fn>
+    UniqueFunction(F func) :
+        func(Fn(func)),
         token(UniqueFunction<Ret, Args...>::next_token ++)
     {}
 
@@ -43,7 +46,6 @@ public:
     Delegate(UFn func) {
         functions.insert(func);
     }
-    Delegate(Fn func) : Delegate(UFn(func)) {}
 
     Self& operator+=(UFn func) {
         functions.insert(func);

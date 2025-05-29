@@ -3,7 +3,7 @@
 #include "comps/text.hpp"
 #include "entities/pos.hpp"
 
-class TextBuilder : public BoundBuilder {
+class TextBuilder : virtual public BoundBuilder {
 public:
     using BoundBuilder::BoundBuilder;
 
@@ -12,7 +12,7 @@ public:
         return *this;
     }
 
-    decltype(auto) color(Color color) {
+    decltype(auto) text_color(Color color) {
         text_.color = color;
         return *this;
     }

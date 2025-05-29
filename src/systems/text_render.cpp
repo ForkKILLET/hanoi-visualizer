@@ -1,7 +1,7 @@
 #include <raylib.h>
 #include "systems/text_render.hpp"
 #include "comps/text.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 
 void TextRenderSystem::update() {
     for (auto $text : entities()) {

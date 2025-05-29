@@ -2,10 +2,10 @@
 #include <format>
 #include <raylib.h>
 #include "builder.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 #include "core/ecs.hpp"
 
-class BoundBuilder : public EntityBuilder {
+class BoundBuilder : virtual public EntityBuilder {
 public:
     using EntityBuilder::EntityBuilder;
 

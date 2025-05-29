@@ -1,7 +1,7 @@
 #pragma once
 #include "core/ecs.hpp"
 #include "comps/hanoi_disk.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 
 class HanoiDiskRenderSystem : public System {
 public:

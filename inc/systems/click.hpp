@@ -1,7 +1,7 @@
 #pragma once
 #include "core/ecs.hpp"
 #include "comps/clickable.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 
 class ClickSystem : public System {
 public:
@@ -11,4 +11,9 @@ public:
     }
 
     void update() override;
+
+    static constexpr float MAX_CLICK_DISTANCE = 2.0f;
+
+private:
+    Vector2 mouse_pos_ {};
 };

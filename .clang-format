@@ -1,0 +1,20 @@
+Language:                           Cpp
+
+DisableFormat:                      true
+
+SortIncludes:                       true
+IncludeCategories:
+  - Regex:                          '^<[A-Za-z0-9]+>'
+    Priority:                       1
+  - Regex:                          '^<[A-Za-z0-9\.]+>'
+    Priority:                       2
+  - Regex:                          '^"core/'
+    Priority:                       3
+  - Regex:                          '^"systems/'
+    Priority:                       4
+  - Regex:                          '^"comps/'
+    Priority:                       5
+  - Regex:                          '^"entities/'
+    Priority:                       6
+  - Regex:                          '^"utils/'
+    Priority:                       7

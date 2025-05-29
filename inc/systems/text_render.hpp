@@ -1,7 +1,7 @@
 #pragma once
 #include "core/ecs.hpp"
 #include "comps/text.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 
 class TextRenderSystem : public System {
 public:

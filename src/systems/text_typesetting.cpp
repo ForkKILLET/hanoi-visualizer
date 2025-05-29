@@ -1,7 +1,7 @@
 #include <raylib.h>
 #include "core/ecs.hpp"
 #include "comps/text.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 #include "systems/text_typesetting.hpp"
 
 void TextTypesettingSystem::update() {

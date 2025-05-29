@@ -1,7 +1,7 @@
 #pragma once
 #include <raylib.h>
 #include "core/ecs.hpp"
-#include "comps/transform.hpp"
+#include "comps/box.hpp"
 #include "comps/hanoi.hpp"
 #include "utils/hanoi.hpp"
 
@@ -16,7 +16,8 @@ public:
 
     void apply_step(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, const HanoiSolution::Step& step);
     void unapply_step(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, const HanoiSolution::Step& step);
-    void step(HanoiCompPtr hanoi, BoundCompPtr bound);
+    void step_next(HanoiCompPtr hanoi, BoundCompPtr bound);
+    void step_prev(HanoiCompPtr hanoi, BoundCompPtr bound);
 
     Vector2 calc_disk_pos(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, RodId rod_index, DiskId disk_index);
 
