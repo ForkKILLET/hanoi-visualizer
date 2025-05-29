@@ -1,3 +1,4 @@
+#pragma once
 #include <compare>
 #include <ostream>
 #include <raylib.h>

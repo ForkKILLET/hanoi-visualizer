@@ -1,11 +1,11 @@
 #pragma once
-#include "ecs.hpp"
+#include "core/ecs.hpp"
 #include "comps/text.hpp"
 #include "entities/pos.hpp"
 
-class TextBuilder : public PosBuilder {
+class TextBuilder : public BoundBuilder {
 public:
-    using PosBuilder::PosBuilder;
+    using BoundBuilder::BoundBuilder;
 
     decltype(auto) text(std::string text) {
         text_.text = std::move(text);
@@ -24,14 +24,9 @@ public:
 
     Entity build() override {
         ecs.emplace_comp<TextComp>(entity, text_);
-        return PosBuilder::build();
+        return BoundBuilder::build();
     }
 
 protected:
     TextComp text_ {};
 };
-
-inline TextBuilder create_text(ECS& ecs) {
-    Entity entity = ecs.create_entity();
-    return TextBuilder(ecs, entity);
-}

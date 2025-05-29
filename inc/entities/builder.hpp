@@ -1,10 +1,10 @@
 #pragma once
-#include "ecs.hpp"
+#include "core/ecs.hpp"
 
 class EntityBuilder {
 public:
-    EntityBuilder(ECS& ecs, Entity entity)
-        : ecs(ecs), entity(entity) {}
+    EntityBuilder(ECS& ecs) :
+        ecs(ecs), entity(ecs.create_entity()) {}
 
     virtual Entity build() { return entity; }
 

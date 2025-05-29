@@ -1,5 +1,5 @@
 #pragma once
-#include "ecs.hpp"
+#include "core/ecs.hpp"
 
 struct ButtonComp : public Comp {
 

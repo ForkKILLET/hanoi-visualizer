@@ -1,6 +1,6 @@
 #pragma once
-#include "ecs.hpp"
-#include "delegate.hpp"
+#include "core/ecs.hpp"
+#include "utils/delegate.hpp"
 
 struct ClickableComp : Comp {
     ClickableComp(Delegate<> on_click) :
@@ -8,3 +8,4 @@ struct ClickableComp : Comp {
 
     Delegate<> on_click {};
 };
+using ClickableCompPtr = std::shared_ptr<ClickableComp>;

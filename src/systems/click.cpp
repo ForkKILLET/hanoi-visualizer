@@ -9,9 +9,9 @@ void ClickSystem::update() {
 
     if (! is_left_clicked) return;
 
-    for (auto entity : entities()) {
-        auto clickable = ecs.get_comp<ClickableComp>(entity);
-        auto bound = ecs.get_comp<BoundComp>(entity);
+    for (auto $clickable : entities()) {
+        auto clickable = ecs.get_comp<ClickableComp>($clickable);
+        auto bound = ecs.get_comp<BoundComp>($clickable);
         if (CheckCollisionPointRec(mouse_pos, bound->to_rec())) {
             clickable->on_click();
         }

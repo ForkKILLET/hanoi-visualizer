@@ -1,8 +1,14 @@
 #pragma once
-#include "ecs.hpp"
+#include "core/ecs.hpp"
+#include "comps/text.hpp"
+#include "comps/transform.hpp"
 
 class TextRenderSystem : public System {
-    using System::System;
+public:
+    TextRenderSystem(ECS& ecs) : System(ecs) {
+        with_comp<TextComp>();
+        with_comp<BoundComp>();
+    }
 
     void update() override;
 };

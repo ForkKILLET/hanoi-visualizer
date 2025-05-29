@@ -64,6 +64,8 @@ public:
     }
 
 private:
+    friend class ECS;
+
     std::array<Entity, MAX_ENTITY_COUNT + 1> index_to_entity {};
     std::array<Entity, MAX_ENTITY_COUNT + 1> entity_to_index {};
     std::array<CPtr, MAX_ENTITY_COUNT + 1> comps;
@@ -227,7 +229,7 @@ private:
 
 class System {
 public:
-    System(ECS& ecs) : ecs(ecs), sig_() {}
+    System(ECS& ecs) : ecs(ecs) {}
 
     template <typename... Cs>
     requires (std::derived_from<Cs, Comp> && ...)
@@ -242,7 +244,7 @@ protected:
     ECS& ecs;
 
 private:
-    CompSig sig_;
+    CompSig sig_ {};
 };
 
 class SystemManager {
@@ -261,6 +263,16 @@ public:
         return system;
     }
 
+    template <typename S>
+    requires std::derived_from<S, System>
+    std::shared_ptr<S> get_system() {
+        std::type_index system_type = typeid(S);
+        if (! systems.contains(system_type))
+            throw std::runtime_error(std::format("System {} not registered.", system_type.name()));
+
+        return std::dynamic_pointer_cast<S>(systems[system_type]);
+    }
+
 private:
     ECS& ecs;
     std::unordered_map<std::type_index, std::shared_ptr<System>> systems {};
@@ -271,16 +283,23 @@ class ECS {
 public:
     template <typename C, typename... Args>
     requires std::derived_from<C, Comp>
-    void emplace_comp(Entity entity, Args&&... args) {
-        get_comp_set<C>()->emplace_comp(entity, std::forward<Args>(args)...);
+    std::shared_ptr<C> emplace_comp(Entity entity, Args&&... args) {
+        auto comp = get_comp_set<C>()->emplace_comp(entity, std::forward<Args>(args)...);
         update_entity_sig<C, true>(entity);
+        return comp;
     }
 
-    template <typename C>
+    template <typename C, typename... Args>
     requires std::derived_from<C, Comp>
-    void emplace_comp(Entity entity, C&& comp) {
-        get_comp_set<C>()->emplace_comp(entity, std::forward<C>(comp));
-        update_entity_sig<C, true>(entity);
+    std::shared_ptr<C> emplace_comp_overwrite(Entity entity, Args&&... args) {
+        CompSet<C>* comp_set = get_comp_set<C>().get();
+        size_t comp_index = comp_set->entity_to_index[entity];
+        if (! comp_index) {
+            comp_set->prepare_add_comp(entity);
+            comp_index = comp_set->size;
+            update_entity_sig<C, true>(entity);
+        }
+        return comp_set->comps[comp_index] = std::make_shared<C>(std::forward<Args>(args)...);
     }
 
     template <typename C>
@@ -332,6 +351,12 @@ public:
     requires std::derived_from<S, System>
     std::shared_ptr<S> register_system() {
         return system_manager_.register_system<S>();
+    }
+
+    template <typename S>
+    requires std::derived_from<S, System>
+    std::shared_ptr<S> get_system() {
+        return system_manager_.get_system<S>();
     }
 
 private:

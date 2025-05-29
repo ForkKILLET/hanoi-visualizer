@@ -1,11 +1,11 @@
 #include "systems/anchor.hpp"
 #include "comps/transform.hpp"
-#include "utils.hpp"
+#include "utils/vector.hpp"
 
 void AnchorSystem::update() {
-    for (auto entity : entities()) {
-        auto anchor = ecs.get_comp<AnchorComp>(entity);
-        auto bound = ecs.get_comp<BoundComp>(entity);
+    for (auto $anchor : entities()) {
+        auto anchor = ecs.get_comp<AnchorComp>($anchor);
+        auto bound = ecs.get_comp<BoundComp>($anchor);
         bound->pos = anchor->pos - anchor->anchor * bound->size.to_vector();
     }
 }
