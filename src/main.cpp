@@ -31,6 +31,10 @@ public:
     ECS ecs {};
 
     void start() {
+#ifndef DEBUG
+        SetTraceLogLevel(LOG_ERROR);
+#endif
+
         ecs.register_comp<TextComp>();
         ecs.register_comp<BoundComp>();
         ecs.register_comp<AnchorComp>();
