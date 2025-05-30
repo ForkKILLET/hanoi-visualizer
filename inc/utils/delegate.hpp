@@ -2,6 +2,7 @@
 #include <concepts>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <set>
 
 template <typename Ret, typename... Args>
@@ -44,35 +45,35 @@ public:
 
     Delegate() = default;
     Delegate(UFn func) {
-        functions.insert(func);
+        functions->insert(func);
     }
 
     Self& operator+=(UFn func) {
-        functions.insert(func);
+        functions->insert(func);
         return *this;
     }
     Self& operator-=(UFn func) {
-        functions.erase(func);
+        functions->erase(func);
         return *this;
     }
 
     Self& operator+=(const Self& other) {
-        functions.insert(other.functions.begin(), other.functions.end());
+        functions->insert(other.functions->begin(), other.functions->end());
         return *this;
     }
     Self& operator-=(const Self& other) {
-        for (const auto& func : other.functions) {
-            functions.erase(func);
+        for (const auto& func : *other.functions) {
+            functions->erase(func);
         }
         return *this;
     }
 
     void operator()(Args... args) const {
-        for (auto func : functions) {
+        for (auto& func : *functions) {
             func(args...);
         }
     }
 
 private:
-    std::set<UFn> functions {};
+    std::shared_ptr<std::set<UFn>> functions = std::make_shared<std::set<UFn>>();
 };
