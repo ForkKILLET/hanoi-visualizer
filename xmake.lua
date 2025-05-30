@@ -2,7 +2,7 @@ add_requires("raylib")
 
 target("hanoi")
     set_kind("binary")
-    add_cxflags("-std=c++23")
+    set_languages("c++23")
 
     if is_mode("debug") then
         set_defines("DEBUG")

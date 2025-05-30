@@ -1,0 +1,100 @@
+name: build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: branch@master
+          actions-cache-folder: '.xmake-cache'
+          actions-cache-key: 'ubuntu'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev p7zip gobjc gcc g++
+      
+      - name: Build
+        run: |
+          xmake --version
+          xmake f -c -y
+          xmake
+          mv build/linux/x86_64/release/hanoi build/linux/x86_64/release/hanoi-linux-x86_64
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          path: build/linux/x86_64/release/hanoi-linux-x86_64
+
+  build-windows:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: branch@master
+          actions-cache-folder: '.xmake-cache'
+          actions-cache-key: 'windows'
+
+      - name: Configure Pagefile
+        uses: al-cheb/configure-pagefile-action@v1.4
+        with:
+          minimum-size: 8GB
+          maximum-size: 32GB
+          disk-root: "D:"
+
+      - name: Build
+        run: |
+          xmake --version
+          xmake f -c -y
+          xmake
+          mv build/windows/x64/release/hanoi.exe build/windows/x64/release/hanoi-windows-x64.exe
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          path: build/windows/x64/release/hanoi-windows-x64.exe
+
+  release:
+    runs-on: ubuntu-latest
+
+    needs:
+      - build-ubuntu
+      - build-windows
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path: artifacts
+          merge-multiple: true
+          
+      - name: Release
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          artifacts: artifacts/*
+          allowUpdates: true
