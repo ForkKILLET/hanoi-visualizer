@@ -8,7 +8,11 @@ public:
     using EntityBuilder::EntityBuilder;
 
     decltype(auto) on_click(UniqueFunction<void> func) {
-        on_click_ += std::move(func);
+        on_click_ += func;
+        return *this;
+    }
+    decltype(auto) on_click(Delegate<>& func) {
+        on_click_ = func;
         return *this;
     }
 

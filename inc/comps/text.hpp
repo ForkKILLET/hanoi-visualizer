@@ -4,8 +4,10 @@
 #include "core/ecs.hpp"
 
 struct TextComp : public Comp {
-    std::string text;
-    Color color;
-    int font_size;
+    TextComp() = default;
+
+    std::string text {};
+    Color color { BLACK };
+    int font_size { 20 };
 };
 using TextCompPtr = std::shared_ptr<TextComp>;

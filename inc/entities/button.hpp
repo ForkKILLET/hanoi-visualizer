@@ -32,7 +32,7 @@ public:
         border_width(1);
         normal_color(BLACK);
         active_color(RED);
-        hover_color(LIGHTGRAY);
+        hover_color(GRAY);
     }
 
     Entity build() override {

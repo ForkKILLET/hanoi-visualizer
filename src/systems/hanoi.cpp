@@ -11,14 +11,19 @@
 void HanoiSystem::reset(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, DiskId disk_count) {
     hanoi->disk_count = disk_count;
     hanoi->solution = HanoiSolution::solve(disk_count);
+    hanoi_bound->size = Size {
+        HANOI_WIDTH,
+        disk_count * DISK_HEIGHT + 1
+    };
 
     for (auto $disk : hanoi->disks) {
         ecs.destroy_entity($disk);
     }
     hanoi->disks.clear();
     hanoi->disks.reserve(disk_count);
+    hanoi->disks.resize(disk_count);
 
-    for (auto rod : hanoi->rods) {
+    for (auto& rod : hanoi->rods) {
         rod.clear();
         rod.reserve(disk_count);
     }

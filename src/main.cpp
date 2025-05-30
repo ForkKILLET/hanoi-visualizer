@@ -1,3 +1,4 @@
+#include <string>
 #include <raylib.h>
 #include "comps/button.hpp"
 #include "comps/hanoi.hpp"
@@ -22,6 +23,7 @@
 #include "systems/text_typesetting.hpp"
 #include "systems/timer.hpp"
 #include "systems/hanoi_render.hpp"
+#include "utils/delegate.hpp"
 #include "utils/hanoi.hpp"
 
 class App {
@@ -57,7 +59,6 @@ public:
         Entity $title_text = ecs.build_entity()
             .use<TextBuilder>()
                 .text("Hanoi Visualizer")
-                .text_color(BLACK)
                 .font_size(25)
                 .anchor({ 400, 20 }, TOP_CENTER)
             .build();
@@ -66,31 +67,42 @@ public:
             .use<HanoiBuilder>()
                 .disk_count(5)
                 .size({ HANOI_WIDTH, 0 })
-                .anchor({ 400, 60 }, TOP_CENTER)
+                .anchor({ 400, 100 }, TOP_CENTER)
             .build();
 
+        auto hanoi = ecs.get_comp<HanoiComp>($hanoi);
+        auto hanoi_bound = ecs.get_comp<BoundComp>($hanoi);
+
+        Delegate<> on_start_button_click {};
         Entity $start_button = ecs.build_entity()
             .use<ButtonBuilder>()
                 .text("Start")
                 .anchor({ 40, 20 }, TOP_LEFT)
             .as<ClickableBuilder>()
-                .on_click([&]() {
-                    auto hanoi = ecs.get_comp<HanoiComp>($hanoi);
-                    hanoi->is_playing = ! hanoi->is_playing;
-                    auto text = ecs.get_comp<TextComp>($start_button);
-                    text->text = hanoi->is_playing ? "Pause" : "Start";
-                })
+                .on_click(on_start_button_click)
             .build();
+        auto start_button_text = ecs.get_comp<TextComp>($start_button);
+
+        auto start = [&, hanoi, start_button_text] {
+            hanoi->is_playing = true;
+            start_button_text->text = "Pause";
+        };
+        auto pause = [&, hanoi, start_button_text] {
+            hanoi->is_playing = false;
+            start_button_text->text = "Start";
+        };
+        on_start_button_click += [&] {
+            if (hanoi->is_playing) pause();
+            else start();
+        };
 
         Entity $step_prev_button = ecs.build_entity()
             .use<ButtonBuilder>()
                 .text("<-")
-                .anchor({ 190 - 30, 20 }, TOP_CENTER)
+                .anchor({ 190 - 33, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
-                .on_click([&]() {
-                    auto hanoi = ecs.get_comp<HanoiComp>($hanoi);
-                    auto hanoi_bound = ecs.get_comp<BoundComp>($hanoi);
-                    if (hanoi->is_playing) hanoi->is_playing = false;
+                .on_click([&, hanoi, hanoi_bound] {
+                    if (hanoi->is_playing) pause();
                     hanoi_system->step_prev(hanoi, hanoi_bound);
                 })
             .build();
@@ -98,13 +110,56 @@ public:
         Entity $step_next_button = ecs.build_entity()
             .use<ButtonBuilder>()
                 .text("->")
-                .anchor({ 190 + 30, 20 }, TOP_CENTER)
+                .anchor({ 190 + 33, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
-                .on_click([&]() {
-                    auto hanoi = ecs.get_comp<HanoiComp>($hanoi);
-                    auto hanoi_bound = ecs.get_comp<BoundComp>($hanoi);
-                    if (hanoi->is_playing) hanoi->is_playing = false;
+                .on_click([&, hanoi, hanoi_bound] {
+                    if (hanoi->is_playing) pause();
                     hanoi_system->step_next(hanoi, hanoi_bound);
+                })
+            .build();
+
+        DiskId disk_count;
+
+        Entity $disk_count_text = ecs.build_entity()
+            .use<TextBuilder>()
+                .anchor({ 610, 20 }, TOP_CENTER)
+            .build();
+
+        auto disk_count_text = ecs.get_comp<TextComp>($disk_count_text);
+
+        auto set_disk_count = [&disk_count, disk_count_text](DiskId count) {
+            disk_count = count;
+            disk_count_text->text = std::to_string(count);
+        };
+        set_disk_count(5);
+
+        Entity $disk_dec_button = ecs.build_entity()
+            .use<ButtonBuilder>()
+                .text("-")
+                .anchor({ 610 - 40, 20 }, TOP_CENTER)
+            .as<ClickableBuilder>()
+                .on_click([&] {
+                    if (disk_count > 1) set_disk_count(disk_count - 1);
+                })
+            .build();
+
+        Entity $disk_inc_button = ecs.build_entity()
+            .use<ButtonBuilder>()
+                .text("+")
+                .anchor({ 610 + 40, 20 }, TOP_CENTER)
+            .as<ClickableBuilder>()
+                .on_click([&] {
+                    if (disk_count < 16) set_disk_count(disk_count + 1);
+                })
+            .build();
+
+        Entity $reset_button = ecs.build_entity()
+            .use<ButtonBuilder>()
+                .text("Reset")
+                .anchor({ 760, 20 }, TOP_RIGHT)
+            .as<ClickableBuilder>()
+                .on_click([&, hanoi, hanoi_bound] {
+                    hanoi_system->reset(hanoi, hanoi_bound, disk_count);
                 })
             .build();
 

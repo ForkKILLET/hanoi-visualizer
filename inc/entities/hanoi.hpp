@@ -21,7 +21,7 @@ public:
         auto hanoi = ecs.emplace_comp<HanoiComp>(entity, hanoi_);
         auto hanoi_bound = ecs.get_comp<BoundComp>(entity);
         ecs.emplace_comp<TimerComp>(entity, Delegate<> {
-            [=]() {
+            [=] {
                 if (hanoi->is_playing) hanoi_system->step_next(hanoi, hanoi_bound);
             }
         }, 0.6f);
