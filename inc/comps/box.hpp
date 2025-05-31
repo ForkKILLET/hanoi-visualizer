@@ -38,7 +38,6 @@ struct BoundComp : public Comp {
         return { outer_pos.x, outer_pos.y, outer_size.width, outer_size.height };
     }
 };
-using BoundCompPtr = std::shared_ptr<BoundComp>;
 
 struct AnchorComp : public Comp {
     AnchorComp() = default;
@@ -48,7 +47,6 @@ struct AnchorComp : public Comp {
     Vector2 pos;
     Vector2 anchor;
 };
-using AnchorCompPtr = std::shared_ptr<AnchorComp>;
 
 constexpr Vector2 CENTER_CENTER = { 0.5f, 0.5f };
 constexpr Vector2 TOP_CENTER = { 0.5f, 0.0f };
@@ -80,3 +78,8 @@ struct PaddingComp : public Comp {
     int bottom;
     int left;
 };
+
+using BoundCompPtr = std::shared_ptr<BoundComp>;
+using AnchorCompPtr = std::shared_ptr<AnchorComp>;
+using BorderCompPtr = std::shared_ptr<BorderComp>;
+using PaddingCompPtr = std::shared_ptr<PaddingComp>;

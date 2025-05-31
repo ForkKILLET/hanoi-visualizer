@@ -10,6 +10,7 @@
 
 void HanoiSystem::reset(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, DiskId disk_count) {
     hanoi->disk_count = disk_count;
+    hanoi->is_playing = false;
     hanoi->solution = HanoiSolution::solve(disk_count);
     hanoi_bound->size = Size {
         HANOI_WIDTH,

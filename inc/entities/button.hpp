@@ -8,22 +8,22 @@
 #include "pos.hpp"
 #include "raylib.h"
 
-class ButtonBuilder :
+class TextButtonBuilder :
     public TextBuilder,
     public PaddingBuilder, 
     public BorderBuilder, 
     public ClickableBuilder,
-    public ButtonStyleBuilder
+    public ButtonBuilder
 {
 public:
-    ButtonBuilder(ECS& ecs, Entity entity) :
+    TextButtonBuilder(ECS& ecs, Entity entity) :
         EntityBuilder(ecs, entity),
         BoundBuilder(ecs, entity),
         TextBuilder(ecs, entity),
         PaddingBuilder(ecs, entity),
         BorderBuilder(ecs, entity),
         ClickableBuilder(ecs, entity),
-        ButtonStyleBuilder(ecs, entity)
+        ButtonBuilder(ecs, entity)
     {
         text_color(BLACK);
         font_size(20);
@@ -31,8 +31,9 @@ public:
         padding_vertical(5);
         border_width(1);
         normal_color(BLACK);
-        active_color(RED);
-        hover_color(GRAY);
+        disabled_color(LIGHTGRAY);
+        active_color(DARKBLUE);
+        hover_color(BLUE);
     }
 
     Entity build() override {
@@ -40,7 +41,7 @@ public:
         PaddingBuilder::build();
         BorderBuilder::build();
         ClickableBuilder::build();
-        ButtonStyleBuilder::build();
+        ButtonBuilder::build();
         return entity;
     }
 };

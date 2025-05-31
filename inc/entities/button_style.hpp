@@ -2,12 +2,15 @@
 #include "comps/button.hpp"
 #include "builder.hpp"
 
-class ButtonStyleBuilder : virtual public EntityBuilder {
+class ButtonBuilder : virtual public EntityBuilder {
 public:
     using EntityBuilder::EntityBuilder;
 
     decltype(auto) normal_color(Color color) {
         button_.normal_color = color;
+    }
+    decltype(auto) disabled_color(Color color) {
+        button_.disabled_color = color;
     }
     decltype(auto) hover_color(Color color) {
         button_.hover_color = color;
@@ -17,10 +20,10 @@ public:
     }
 
     Entity build() override {
-        ecs.emplace_comp<ButtonStyleComp>(entity, button_);
+        ecs.emplace_comp<ButtonComp>(entity, button_);
         return entity;
     }
 
 protected:
-    ButtonStyleComp button_;
+    ButtonComp button_;
 };

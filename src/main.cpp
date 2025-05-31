@@ -45,7 +45,7 @@ public:
         ecs.register_comp<AnimationComp>();
         ecs.register_comp<BorderComp>();
         ecs.register_comp<PaddingComp>();
-        ecs.register_comp<ButtonStyleComp>();
+        ecs.register_comp<ButtonComp>();
 
         auto anchor_system = ecs.register_system<AnchorSystem>();
         auto text_typesetting_system = ecs.register_system<TextTypesettingSystem>();
@@ -79,7 +79,7 @@ public:
 
         Delegate<> on_start_button_click {};
         Entity $start_button = ecs.build_entity()
-            .use<ButtonBuilder>()
+            .use<TextButtonBuilder>()
                 .text("Start")
                 .anchor({ 40, 20 }, TOP_LEFT)
             .as<ClickableBuilder>()
@@ -101,7 +101,7 @@ public:
         };
 
         Entity $step_prev_button = ecs.build_entity()
-            .use<ButtonBuilder>()
+            .use<TextButtonBuilder>()
                 .text("<-")
                 .anchor({ 190 - 33, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
@@ -112,7 +112,7 @@ public:
             .build();
 
         Entity $step_next_button = ecs.build_entity()
-            .use<ButtonBuilder>()
+            .use<TextButtonBuilder>()
                 .text("->")
                 .anchor({ 190 + 33, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
@@ -137,28 +137,41 @@ public:
         };
         set_disk_count(5);
 
+        Delegate<> on_disk_dec {};
         Entity $disk_dec_button = ecs.build_entity()
-            .use<ButtonBuilder>()
+            .use<TextButtonBuilder>()
                 .text("-")
                 .anchor({ 610 - 40, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
-                .on_click([&] {
-                    if (disk_count > 1) set_disk_count(disk_count - 1);
-                })
+                .on_click(on_disk_dec)
             .build();
+        auto disk_dec_button = ecs.get_comp<ButtonComp>($disk_dec_button);
 
+        Delegate<> on_disk_inc {};
         Entity $disk_inc_button = ecs.build_entity()
-            .use<ButtonBuilder>()
+            .use<TextButtonBuilder>()
                 .text("+")
                 .anchor({ 610 + 40, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
-                .on_click([&] {
-                    if (disk_count < 16) set_disk_count(disk_count + 1);
-                })
+                .on_click(on_disk_inc)
             .build();
+        auto disk_inc_button = ecs.get_comp<ButtonComp>($disk_inc_button);
+
+        on_disk_dec += [&, disk_inc_button, disk_dec_button] {
+            if (disk_count == MIN_DISK_COUNT) return;
+            set_disk_count(disk_count - 1);
+            disk_inc_button->is_disabled = false;
+            if (disk_count == MIN_DISK_COUNT) disk_dec_button->is_disabled = true;
+        };
+        on_disk_inc += [&] {
+            if (disk_count == MAX_DISK_COUNT) return;
+            set_disk_count(disk_count + 1);
+            disk_dec_button->is_disabled = false;
+            if (disk_count == MAX_DISK_COUNT) disk_inc_button->is_disabled = true;
+        };
 
         Entity $reset_button = ecs.build_entity()
-            .use<ButtonBuilder>()
+            .use<TextButtonBuilder>()
                 .text("Reset")
                 .anchor({ 760, 20 }, TOP_RIGHT)
             .as<ClickableBuilder>()
