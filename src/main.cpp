@@ -9,12 +9,15 @@
 #include "entities/hanoi.hpp"
 #include "entities/button.hpp"
 #include "entities/clickable.hpp"
+#include "entities/updater.hpp"
 #include "comps/text.hpp"
 #include "comps/box.hpp"
 #include "comps/clickable.hpp"
+#include "comps/updater.hpp"
 #include "systems/animation.hpp"
 #include "systems/button.hpp"
 #include "systems/click.hpp"
+#include "systems/custom_update.hpp"
 #include "systems/hanoi.hpp"
 #include "systems/hanoi_disk_render.hpp"
 #include "systems/text_render.hpp"
@@ -47,7 +50,9 @@ public:
         ecs.register_comp<BorderComp>();
         ecs.register_comp<PaddingComp>();
         ecs.register_comp<ButtonComp>();
+        ecs.register_comp<UpdaterComp>();
 
+        auto custom_update_system = ecs.register_system<CustomUpdateSystem>();
         auto anchor_system = ecs.register_system<AnchorSystem>();
         auto text_typesetting_system = ecs.register_system<TextTypesettingSystem>();
         auto text_render_system = ecs.register_system<TextRenderSystem>();
@@ -110,6 +115,11 @@ public:
                     if (hanoi->is_playing) pause();
                     hanoi_system->step_prev(hanoi, hanoi_bound);
                 })
+            .use<UpdaterBuilder>()
+                .on_update([&, hanoi](Entity $self) {
+                    auto button = ecs.get_comp<ButtonComp>($self);
+                    button->is_disabled = ! hanoi->solution.has_prev();
+                })
             .build();
 
         Entity $step_next_button = ecs.build_entity()
@@ -120,6 +130,11 @@ public:
                 .on_click([&, hanoi, hanoi_bound] {
                     if (hanoi->is_playing) pause();
                     hanoi_system->step_next(hanoi, hanoi_bound);
+                })
+            .use<UpdaterBuilder>()
+                .on_update([&, hanoi](Entity $self) {
+                    auto button = ecs.get_comp<ButtonComp>($self);
+                    button->is_disabled = ! hanoi->solution.has_next();
                 })
             .build();
 
@@ -138,38 +153,37 @@ public:
         };
         set_disk_count(5);
 
-        Delegate<> on_disk_dec {};
         Entity $disk_dec_button = ecs.build_entity()
             .use<TextButtonBuilder>()
                 .text("-")
                 .anchor({ 610 - 40, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
-                .on_click(on_disk_dec)
+                .on_click([&] {
+                    if (disk_count == MIN_DISK_COUNT) return;
+                    set_disk_count(disk_count - 1);
+                })
+            .use<UpdaterBuilder>()
+                .on_update([&](Entity $self) {
+                    auto button = ecs.get_comp<ButtonComp>($self);
+                    button->is_disabled = disk_count == MIN_DISK_COUNT;
+                })
             .build();
-        auto disk_dec_button = ecs.get_comp<ButtonComp>($disk_dec_button);
 
-        Delegate<> on_disk_inc {};
         Entity $disk_inc_button = ecs.build_entity()
             .use<TextButtonBuilder>()
                 .text("+")
                 .anchor({ 610 + 40, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
-                .on_click(on_disk_inc)
+                .on_click([&] {
+                    if (disk_count == MIN_DISK_COUNT) return;
+                    set_disk_count(disk_count + 1);
+                })
+            .use<UpdaterBuilder>()
+                .on_update([&](Entity $self) {
+                    auto button = ecs.get_comp<ButtonComp>($self);
+                    button->is_disabled = disk_count == MAX_DISK_COUNT;
+                })
             .build();
-        auto disk_inc_button = ecs.get_comp<ButtonComp>($disk_inc_button);
-
-        on_disk_dec += [&, disk_inc_button, disk_dec_button] {
-            if (disk_count == MIN_DISK_COUNT) return;
-            set_disk_count(disk_count - 1);
-            disk_inc_button->is_disabled = false;
-            if (disk_count == MIN_DISK_COUNT) disk_dec_button->is_disabled = true;
-        };
-        on_disk_inc += [&] {
-            if (disk_count == MAX_DISK_COUNT) return;
-            set_disk_count(disk_count + 1);
-            disk_dec_button->is_disabled = false;
-            if (disk_count == MAX_DISK_COUNT) disk_inc_button->is_disabled = true;
-        };
 
         Entity $reset_button = ecs.build_entity()
             .use<TextButtonBuilder>()
@@ -188,6 +202,8 @@ public:
             BeginDrawing();
                 graphic::fit_window();
                 ClearBackground(RAYWHITE);
+
+                custom_update_system->update();
 
                 animation_system->update();
 
