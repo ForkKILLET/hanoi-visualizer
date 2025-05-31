@@ -1,5 +1,6 @@
 #include <cassert>
 #include <raylib.h>
+#include "core/vector.hpp"
 #include "systems/hanoi.hpp"
 #include "comps/hanoi.hpp"
 #include "entities/hanoi_disk.hpp"
@@ -29,7 +30,7 @@ void HanoiSystem::reset(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, DiskId dis
         rod.reserve(disk_count);
     }
 
-    float disk_width_step = ROD_WIDTH / disk_count;
+    VV disk_width_step = ROD_WIDTH / disk_count;
     for (DiskId index = 0; index < disk_count; ++ index) {
         DiskId id = disk_count - index - 1;
         hanoi->rods[0].push_back(id);
@@ -38,7 +39,7 @@ void HanoiSystem::reset(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, DiskId dis
                 .id(id)
                 .size({
                     disk_width_step * (id + 1),
-                    DISK_HEIGHT + 1
+                    DISK_HEIGHT + 1_v
                 })
                 .anchor(calc_disk_pos(hanoi, hanoi_bound, 0, index), TOP_CENTER)
             .build();
@@ -60,8 +61,8 @@ void HanoiSystem::apply_step(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, const
         .delay = 0.0f,
         .duration = 0.5f,
         .mode = ANIMATION_MODE_ONCE,
-        .track = AnimationTrack<Vector2> {
-            .property = CompLens<Vector2>(ecs, &AnchorComp::pos),
+        .track = AnimationTrack<VV2> {
+            .property = CompLens<VV2>(ecs, &AnchorComp::pos),
             .from = disk_anchor->pos,
             .to = new_pos,
             .timing_func = TimingFuncs::ease_in_out,
@@ -76,10 +77,10 @@ void HanoiSystem::unapply_step(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, con
     apply_step(hanoi, hanoi_bound, {step.to, step.from});
 }
 
-Vector2 HanoiSystem::calc_disk_pos(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, RodId rod_index, DiskId disk_index) {
-    return hanoi_bound->pos + Vector2 {
-        (rod_index + 0.5f) * ROD_WIDTH + rod_index * ROD_GAP,
-        (hanoi->disk_count - disk_index - 1) * DISK_HEIGHT
+VV2 HanoiSystem::calc_disk_pos(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, RodId rod_index, DiskId disk_index) {
+    return hanoi_bound->pos + VV2 {
+        ROD_WIDTH * (rod_index + 0.5f) + ROD_GAP * rod_index,
+        DISK_HEIGHT * (hanoi->disk_count - disk_index - 1)
     };
 }
 

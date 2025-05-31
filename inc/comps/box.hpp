@@ -1,34 +1,34 @@
 #pragma once
 #include <raylib.h>
 #include "core/ecs.hpp"
+#include "core/vector.hpp"
 
 struct Size {
     Size() = default;
-    Size(float width, float height) :
+    Size(VV width, VV height) :
         width(width), height(height) {}
 
-    float width = 0.0f;
-    float height = 0.0f;
+    VV width { 0.0f };
+    VV height { 0.0f };
 
-    Vector2 to_vector() const {
-        return { width, height };
-    }
+    VV2 to_vec() const { return { width, height }; }
+    operator VV2() const { return to_vec(); }
 };
 
 struct BoundComp : public Comp {
     BoundComp() = default;
-    BoundComp(Vector2 pos) :
+    BoundComp(VV2 pos) :
         pos(pos), size() {}
     BoundComp(Size size) :
         pos(), size(size) {}
-    BoundComp(Vector2 pos, Size size) :
+    BoundComp(VV2 pos, Size size) :
         pos(pos), size(size) {}
     BoundComp(Rectangle rec) :
         pos({ rec.x, rec.y }), size({ rec.width, rec.height }) {}
 
-    Vector2 pos;
+    VV2 pos;
     Size size;
-    Vector2 outer_pos;
+    VV2 outer_pos;
     Size outer_size;
 
     Rectangle get_rec() const {
@@ -41,10 +41,10 @@ struct BoundComp : public Comp {
 
 struct AnchorComp : public Comp {
     AnchorComp() = default;
-    AnchorComp(Vector2 pos, Vector2 anchor) :
+    AnchorComp(VV2 pos, Vector2 anchor) :
         pos(pos), anchor(anchor) {};
 
-    Vector2 pos;
+    VV2 pos;
     Vector2 anchor;
 };
 
@@ -60,23 +60,23 @@ constexpr Vector2 BOTTOM_RIGHT = { 1.0f, 1.0f };
 
 struct BorderComp : public Comp {
     BorderComp() = default;
-    int width;
+    VV width;
     Color color;
 };
 
 struct PaddingComp : public Comp {
     PaddingComp() = default;
-    PaddingComp(int padding) :
+    PaddingComp(VV padding) :
         top(padding), right(padding), bottom(padding), left(padding) {}
-    PaddingComp(int topBottom, int leftRight) :
+    PaddingComp(VV topBottom, VV leftRight) :
         top(topBottom), right(leftRight), bottom(topBottom), left(leftRight) {} 
-    PaddingComp(int top, int right, int bottom, int left) :
+    PaddingComp(VV top, VV right, VV bottom, VV left) :
         top(top), right(right), bottom(bottom), left(left) {}
 
-    int top;
-    int right;
-    int bottom;
-    int left;
+    VV top;
+    VV right;
+    VV bottom;
+    VV left;
 };
 
 using BoundCompPtr = std::shared_ptr<BoundComp>;

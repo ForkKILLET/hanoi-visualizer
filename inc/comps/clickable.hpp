@@ -1,8 +1,8 @@
 #pragma once
 #include <optional>
 #include "core/ecs.hpp"
+#include "core/vector.hpp"
 #include "utils/delegate.hpp"
-#include "raylib.h"
 
 struct ClickableComp : Comp {
     ClickableComp() = default;
@@ -17,6 +17,6 @@ struct ClickableComp : Comp {
 
     bool is_hovering { false };
     bool is_active { false };
-    std::optional<Vector2> mouse_down_pos {};
+    std::optional<VV2> mouse_down_pos {};
 };
 using ClickableCompPtr = std::shared_ptr<ClickableComp>;

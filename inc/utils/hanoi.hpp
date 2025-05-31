@@ -4,14 +4,15 @@
 #include <cstdint>
 #include <functional>
 #include <vector>
+#include "core/vector.hpp"
 
 using DiskId = uint8_t;
 using RodId = uint8_t;
 
-static constexpr float ROD_WIDTH = 200.f;
-static constexpr float DISK_HEIGHT = 20.f;
-static constexpr float ROD_GAP = 10.f;
-static constexpr float HANOI_WIDTH = 3 * ROD_WIDTH + 2 * ROD_GAP;
+static constexpr VV ROD_WIDTH = 200.f;
+static constexpr VV DISK_HEIGHT = 20.f;
+static constexpr VV ROD_GAP = 10.f;
+static constexpr VV HANOI_WIDTH = ROD_WIDTH * 3 + ROD_GAP * 2;
 
 static constexpr DiskId MIN_DISK_COUNT = 1;
 static constexpr DiskId MAX_DISK_COUNT = 16;

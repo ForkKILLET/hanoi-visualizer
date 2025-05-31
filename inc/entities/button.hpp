@@ -1,4 +1,5 @@
 #pragma once
+#include <raylib.h>
 #include "core/ecs.hpp"
 #include "entities/text.hpp"
 #include "entities/padding.hpp"
@@ -6,7 +7,6 @@
 #include "entities/clickable.hpp"
 #include "button_style.hpp"
 #include "pos.hpp"
-#include "raylib.h"
 
 class TextButtonBuilder :
     public TextBuilder,

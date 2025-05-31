@@ -9,7 +9,7 @@ class BoundBuilder : virtual public EntityBuilder {
 public:
     using EntityBuilder::EntityBuilder;
 
-    decltype(auto) pos(Vector2 pos) {
+    decltype(auto) pos(VV2 pos) {
         define_pos();
         bound_.pos = pos;
         return *this;
@@ -20,7 +20,7 @@ public:
         return *this;
     }
 
-    decltype(auto) anchor(Vector2 pos, Vector2 anchor) {
+    decltype(auto) anchor(VV2 pos, Vector2 anchor) {
         define_pos();
         ecs.emplace_comp<AnchorComp>(entity, pos, anchor);
         return *this;

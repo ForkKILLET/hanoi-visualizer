@@ -19,7 +19,7 @@ public:
     void step_next(HanoiCompPtr hanoi, BoundCompPtr bound);
     void step_prev(HanoiCompPtr hanoi, BoundCompPtr bound);
 
-    Vector2 calc_disk_pos(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, RodId rod_index, DiskId disk_index);
+    VV2 calc_disk_pos(HanoiCompPtr hanoi, BoundCompPtr hanoi_bound, RodId rod_index, DiskId disk_index);
 
     void update() override;
 };

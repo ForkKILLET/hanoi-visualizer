@@ -1,14 +1,12 @@
 #include <raylib.h>
+#include "core/vector.hpp"
 #include "systems/click.hpp"
 #include "comps/clickable.hpp"
 #include "comps/box.hpp"
-#include "utils/vector.hpp"
-
-using namespace vec;
 
 void ClickSystem::update() {
-    Vector2 old_mouse_pos = mouse_pos_;
-    mouse_pos_ = GetMousePosition();
+    VV2 old_mouse_pos = mouse_pos_;
+    mouse_pos_ = VV2::from_real(GetMousePosition());
 
     bool is_left_pressed = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
 
@@ -17,7 +15,7 @@ void ClickSystem::update() {
         auto bound = ecs.get_comp<BoundComp>($clickable);
 
         bool was_hovering = clickable->is_hovering;
-        bool is_hovering = clickable->is_hovering = CheckCollisionPointRec(mouse_pos_, bound->get_outer_rec());
+        bool is_hovering = clickable->is_hovering = CheckCollisionPointRec(mouse_pos_.to_real(), bound->get_outer_rec());
         if (! was_hovering && is_hovering) clickable->on_mouse_enter();
         else if (was_hovering && ! is_hovering) clickable->on_mouse_leave();
 
@@ -29,8 +27,8 @@ void ClickSystem::update() {
         }
         else if (was_active && ! is_active) {
             clickable->on_mouse_up();
-            float mouse_distance = vec_length(
-                mouse_pos_ - clickable->mouse_down_pos.value_or(Vector2 {}) 
+            float mouse_distance = magnitude(
+                mouse_pos_ - clickable->mouse_down_pos.value_or(VV2 {}) 
             );
             if (mouse_distance < MAX_CLICK_DISTANCE) clickable->on_click();
         }

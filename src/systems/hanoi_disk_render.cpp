@@ -11,15 +11,15 @@ void HanoiDiskRenderSystem::update() {
 
         auto rec = bound->get_rec();
         DrawRectangleRec(rec, WHITE);
-        DrawRectangleLinesEx(rec, 1, BLACK);
+        DrawRectangleLinesEx(rec, 1_v, BLACK);
 
         auto id_c_str = disk->id_str.c_str();
-        int text_width = MeasureText(id_c_str, 20);
+        VV text_width = MeasureText(id_c_str, 20);
         DrawText(
             id_c_str,
             bound->pos.x + (bound->size.width - text_width) / 2,
-            bound->pos.y + 1,
-            20, BLACK
+            bound->pos.y + 1_v,
+            20_v, BLACK
         );
     }
 }

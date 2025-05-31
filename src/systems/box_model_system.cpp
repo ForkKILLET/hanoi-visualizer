@@ -19,8 +19,8 @@ void BoxModelSystem::update() {
         if (border) {
             bound->outer_pos.x -= border->width;
             bound->outer_pos.y -= border->width;
-            bound->outer_size.width += 2 * border->width;
-            bound->outer_size.height += 2 * border->width;
+            bound->outer_size.width += border->width * 2;
+            bound->outer_size.height += border->width * 2;
         }
     }
 }

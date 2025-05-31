@@ -10,8 +10,8 @@ void TextTypesettingSystem::update() {
         auto bound = ecs.get_comp<BoundComp>($text);
 
         bound->size = {
-            static_cast<float>(MeasureText(text->text.c_str(), text->font_size)),
-            static_cast<float>(text->font_size)
+            static_cast<float>(MeasureText(text->text.c_str(), text->font_size.v)),
+            text->font_size
         };
     }
 }

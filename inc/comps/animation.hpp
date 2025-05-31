@@ -3,16 +3,13 @@
 #include <raylib.h>
 #include "core/ecs.hpp"
 #include "core/lens.hpp"
-#include "utils/vector.hpp" // IWYU pragma: keep
+#include "core/vector.hpp"
 #include "utils/timing_func.hpp"
-
-using namespace vec;
 
 template <typename T>
 concept interpolatable = requires(T a, T b, float k) {
     { (a + b) } -> std::convertible_to<T>;
     { (a - b) } -> std::convertible_to<T>;
-    { (k * a) } -> std::convertible_to<T>;
     { (a * k) } -> std::convertible_to<T>;
 };
 
@@ -39,7 +36,8 @@ enum AnimationMode {
 
 using AnyAnimationTrack = std::variant<
     AnimationTrack<float>,
-    AnimationTrack<Vector2>
+    AnimationTrack<Vector2>,
+    AnimationTrack<VV2>
 >;
 
 struct Animation {

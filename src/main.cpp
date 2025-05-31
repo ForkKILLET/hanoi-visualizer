@@ -180,27 +180,31 @@ public:
                 })
             .build();
 
+        SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(800, 450, "Hanoi Visualizer");
+        WindowTransform::set_window_size(800, 450);
 
         while (! WindowShouldClose()) {
             BeginDrawing();
-                ClearBackground(RAYWHITE);
-                animation_system->update();
+            WindowTransform::fit_window_size();
+            ClearBackground(RAYWHITE);
 
-                text_typesetting_system->update();
-                anchor_system->update();
-                box_model_system->update();
+            animation_system->update();
 
-                hanoi_system->update();
+            text_typesetting_system->update();
+            anchor_system->update();
+            box_model_system->update();
 
-                text_render_system->update();
-                border_render_system->update();
-                button_system->update();
-                hanoi_render_system->update();
-                hanoi_disk_render_system->update();
+            hanoi_system->update();
 
-                timer_system->update();
-                click_system->update();
+            text_render_system->update();
+            border_render_system->update();
+            button_system->update();
+            hanoi_render_system->update();
+            hanoi_disk_render_system->update();
+
+            timer_system->update();
+            click_system->update();
             EndDrawing();
         }
 

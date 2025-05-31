@@ -6,7 +6,7 @@ class BorderBuilder : virtual public EntityBuilder {
 public:
     using EntityBuilder::EntityBuilder;
 
-    decltype(auto) border_width(float width) {
+    decltype(auto) border_width(VV width) {
         border_.width = width;
         return *this;
     }
