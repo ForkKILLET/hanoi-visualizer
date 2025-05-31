@@ -14,6 +14,10 @@ target("hanoi")
         set_optimize("fastest")
     end
 
+    if is_plat("windows") then
+        add_ldflags("/SUBSYSTEM:WINDOWS", "/ENTRY:mainCRTStartup", {force = true})
+    end
+
     add_includedirs("inc")
     add_files("src/*.cpp")
     add_files("src/**/*.cpp")
