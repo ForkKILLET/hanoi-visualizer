@@ -16,7 +16,10 @@ inline Vector2 operator*(const Vector2& a, float k) {
     return { a.x * k, a.y * k };
 }
 inline Vector2 operator*(float k, const Vector2& a) {
-    return { a.x * k, a.y * k };
+    return { k * a.x, k * a.y };
+}
+inline Vector2 operator/(const Vector2& a, float k) {
+    return { a.x / k, a.y / k };
 }
 inline Vector2 operator*(const Vector2& a, const Vector2& b) {
     return { a.x * b.x, a.y * b.y };
@@ -37,6 +40,11 @@ inline std::ostream& operator<<(std::ostream& os, const Vector2& v) {
 
 inline float vec_length(Vector2 v) {
     return sqrtf(v.x * v.x + v.y * v.y);
+}
+
+template<typename T>
+auto unpack(const Vector2& v) {
+    return std::tie(v.x, v.y);
 }
 
 };

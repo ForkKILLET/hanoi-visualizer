@@ -1,3 +1,4 @@
+#include "core/graphic.hpp"
 #include "core/ecs.hpp"
 #include "comps/box.hpp"
 
@@ -13,7 +14,7 @@ public:
             auto border = ecs.get_comp<BorderComp>(entity);
             auto bound = ecs.get_comp<BoundComp>(entity);
 
-            DrawRectangleLinesEx(bound->get_outer_rec(), border->width, border->color);
+            graphic::stroke_rect(bound->get_outer_rect(), border->color);
         }
     }
 };

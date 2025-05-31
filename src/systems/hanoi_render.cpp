@@ -1,4 +1,4 @@
-#include <raylib.h>
+#include "core/graphic.hpp"
 #include "comps/hanoi.hpp"
 #include "core/ecs.hpp"
 #include "utils/hanoi.hpp"
@@ -12,7 +12,7 @@ void HanoiRenderSystem::update() {
         auto y1 = hanoi_bound->pos.y;
         auto y2 = y1 + (hanoi -> disk_count) * DISK_HEIGHT;
         for (RodId i = 0; i < 3; i ++) {
-            DrawLine(x, y1, x, y2, BLACK);
+            graphic::draw_line({ x, y1 }, { x, y2 }, BLACK);
             x += (ROD_WIDTH + ROD_GAP);
         }
     }

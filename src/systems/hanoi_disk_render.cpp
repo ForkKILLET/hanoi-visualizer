@@ -1,25 +1,23 @@
+#include "core/graphic.hpp"
 #include "systems/hanoi_disk_render.hpp"
 #include "comps/hanoi_disk.hpp"
 #include "comps/box.hpp"
-#include "raylib.h"
-#include <string>
 
 void HanoiDiskRenderSystem::update() {
     for (auto $disk : entities()) {
         auto disk = ecs.get_comp<HanoiDiskComp>($disk);
         auto bound = ecs.get_comp<BoundComp>($disk);
 
-        auto rec = bound->get_rec();
-        DrawRectangleRec(rec, WHITE);
-        DrawRectangleLinesEx(rec, 1, BLACK);
+        auto rec = bound->get_rect();
+        graphic::fill_rect(rec, WHITE);
+        graphic::stroke_rect(rec, BLACK, 1);
 
-        auto id_c_str = disk->id_str.c_str();
-        int text_width = MeasureText(id_c_str, 20);
-        DrawText(
-            id_c_str,
-            bound->pos.x + (bound->size.width - text_width) / 2,
-            bound->pos.y + 1,
-            20, BLACK
+        const auto& id_str = disk->id_str;
+        int text_width = graphic::measure_text_0(id_str, 20);
+        graphic::draw_text(
+            id_str,
+            bound->pos + Vector2 { (bound->size.width - text_width) / 2, 1 },
+            BLACK, 20
         );
     }
 }

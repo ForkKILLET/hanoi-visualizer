@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include "core/graphic.hpp"
 #include "systems/click.hpp"
 #include "comps/clickable.hpp"
 #include "comps/box.hpp"
@@ -8,7 +9,7 @@ using namespace vec;
 
 void ClickSystem::update() {
     Vector2 old_mouse_pos = mouse_pos_;
-    mouse_pos_ = GetMousePosition();
+    mouse_pos_ = graphic::get_mouse_pos();
 
     bool is_left_pressed = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
 
@@ -17,7 +18,7 @@ void ClickSystem::update() {
         auto bound = ecs.get_comp<BoundComp>($clickable);
 
         bool was_hovering = clickable->is_hovering;
-        bool is_hovering = clickable->is_hovering = CheckCollisionPointRec(mouse_pos_, bound->get_outer_rec());
+        bool is_hovering = clickable->is_hovering = CheckCollisionPointRec(mouse_pos_, bound->get_outer_rect());
         if (! was_hovering && is_hovering) clickable->on_mouse_enter();
         else if (was_hovering && ! is_hovering) clickable->on_mouse_leave();
 

@@ -1,6 +1,5 @@
 #include <variant>
 #include <vector>
-#include <raylib.h>
 #include "core/ecs.hpp"
 #include "core/lens.hpp"
 #include "utils/vector.hpp" // IWYU pragma: keep
@@ -12,7 +11,6 @@ template <typename T>
 concept interpolatable = requires(T a, T b, float k) {
     { (a + b) } -> std::convertible_to<T>;
     { (a - b) } -> std::convertible_to<T>;
-    { (k * a) } -> std::convertible_to<T>;
     { (a * k) } -> std::convertible_to<T>;
 };
 

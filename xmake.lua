@@ -5,9 +5,8 @@ target("hanoi")
     set_languages("c++23")
 
     if is_mode("debug") then
-        set_defines("DEBUG")
+        add_defines("DEBUG")
         set_symbols("debug")
-        set_optimize("none")
     elseif is_mode("release") then
         set_symbols("hidden")
         set_strip("all")

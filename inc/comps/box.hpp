@@ -31,10 +31,10 @@ struct BoundComp : public Comp {
     Vector2 outer_pos;
     Size outer_size;
 
-    Rectangle get_rec() const {
+    Rectangle get_rect() const {
         return { pos.x, pos.y, size.width, size.height };
     }
-    Rectangle get_outer_rec() const {
+    Rectangle get_outer_rect() const {
         return { outer_pos.x, outer_pos.y, outer_size.width, outer_size.height };
     }
 };

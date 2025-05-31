@@ -4,6 +4,7 @@
 #include "comps/hanoi.hpp"
 #include "comps/hanoi_disk.hpp"
 #include "core/ecs.hpp"
+#include "core/graphic.hpp"
 #include "entities/text.hpp"
 #include "entities/hanoi.hpp"
 #include "entities/button.hpp"
@@ -180,11 +181,14 @@ public:
                 })
             .build();
 
-        InitWindow(800, 450, "Hanoi Visualizer");
+        SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+        InitWindow(graphic::app_width = 800, graphic::app_height = 450, "Hanoi Visualizer");
 
         while (! WindowShouldClose()) {
             BeginDrawing();
+                graphic::fit_window();
                 ClearBackground(RAYWHITE);
+
                 animation_system->update();
 
                 text_typesetting_system->update();
