@@ -113,7 +113,7 @@ public:
     void register_comp() {
         std::type_index type = typeid(C);
         if (comp_indices.contains(type))
-            throw std::runtime_error(std::format("Component type {} already registered.", type.name()));
+            throw std::runtime_error(std::format("Component {} already registered.", type.name()));
 
         comp_indices[type] = comp_index ++;
         comp_sets[type] = std::make_shared<CompSet<C>>();
@@ -124,7 +124,7 @@ public:
     std::shared_ptr<CompSet<C>> get_comp_set() {
         std::type_index type = typeid(C);
         if (! comp_sets.contains(type))
-            throw std::runtime_error(std::format("Component type {} not registered.", type.name()));
+            throw std::runtime_error(std::format("Component {} not registered.", type.name()));
 
         return std::dynamic_pointer_cast<CompSet<C>>(comp_sets[type]);
     }
@@ -268,7 +268,7 @@ public:
         if (systems.contains(system_type))
             throw std::runtime_error(std::format("System {} already registered.", system_type.name()));
 
-        std::shared_ptr<S> system = std::make_shared<S>(ecs);
+        auto system = std::make_shared<S>(ecs);
         systems[system_type] = system;
         return system;
     }
@@ -287,6 +287,42 @@ private:
     ECS& ecs;
     std::unordered_map<std::type_index, std::shared_ptr<System>> systems {};
     size_t system_index = 0;
+};
+
+struct Service {
+    virtual ~Service() = default;
+};
+
+class ServiceManager {
+public:
+    ServiceManager() = default;
+
+    template <typename S>
+    requires std::derived_from<S, Service>
+    std::shared_ptr<S> register_service() {
+        std::type_index type = typeid(S);
+        if (services.contains(type))
+            throw std::runtime_error(std::format("Service {} already registered.", type.name()));
+
+        auto service = std::make_shared<S>();
+        services[type] = service;
+        return service;
+    }
+
+    template <typename S>
+    requires std::derived_from<S, Service>
+    std::shared_ptr<S> get_service() {
+        std::type_index type = typeid(S);
+        if (! services.contains(type))
+            throw std::runtime_error(std::format("Service {} not registered.", type.name()));
+
+        return std::dynamic_pointer_cast<S>(services[type]);
+    }
+
+private:
+    friend class ECS;
+
+    std::unordered_map<std::type_index, std::shared_ptr<Service>> services {};
 };
 
 class ECS {
@@ -340,59 +376,72 @@ public:
     template <typename C>
     requires std::derived_from<C, Comp>
     size_t get_comp_index() const {
-        return comp_manager_.get_comp_index<C>();
+        return comp_manager.get_comp_index<C>();
     }
 
     Entity create_entity() {
-        return entity_manager_.create_entity();
+        return entity_manager.create_entity();
     }
     void destroy_entity(Entity entity) {
-        entity_manager_.destroy_entity(entity);
+        entity_manager.destroy_entity(entity);
     }
 
     const EntityManager::EntityExistsMap& entity_exists_map() const {
-        return entity_manager_.entity_exists;
+        return entity_manager.entity_exists;
     }
     bool entity_matches_sig(Entity entity, CompSig sig) const {
-        return entity_manager_.entity_matches_sig(entity, sig);
+        return entity_manager.entity_matches_sig(entity, sig);
     }
 
     template <typename C>
     requires std::derived_from<C, Comp>
     void register_comp() {
-        comp_manager_.register_comp<C>();
+        comp_manager.register_comp<C>();
     }
 
     template <typename S>
     requires std::derived_from<S, System>
     std::shared_ptr<S> register_system() {
-        return system_manager_.register_system<S>();
+        return system_manager.register_system<S>();
     }
 
     template <typename S>
     requires std::derived_from<S, System>
     std::shared_ptr<S> get_system() {
-        return system_manager_.get_system<S>();
+        return system_manager.get_system<S>();
+    }
+
+    template <typename S>
+    requires std::derived_from<S, Service>
+    std::shared_ptr<S> register_service() {
+        return service_manager.register_service<S>();
+    }
+
+    template <typename S>
+    requires std::derived_from<S, Service>
+    std::shared_ptr<S> get_service() {
+        return service_manager.get_service<S>();
     }
 
     EntityBuilder build_entity();
 
 private:
-    CompManager comp_manager_ {};
-    EntityManager entity_manager_ {};
-    SystemManager system_manager_ { *this };
+    CompManager comp_manager {};
+    EntityManager entity_manager {};
+    SystemManager system_manager { *this };
+    ServiceManager service_manager {};
 
     template <typename C, bool value>
     requires std::derived_from<C, Comp>
     void update_entity_sig(Entity entity) {
-        size_t comp_index = comp_manager_.get_comp_index<C>();
-        entity_manager_.entity_sigs[entity].set(comp_index, value);
+        size_t comp_index = comp_manager.get_comp_index<C>();
+        entity_manager.entity_sigs[entity].set(comp_index, value);
     }
 
     template <typename C>
     requires std::derived_from<C, Comp>
     std::shared_ptr<CompSet<C>> get_comp_set() {
-        return comp_manager_.get_comp_set<C>();
+        return comp_manager.get_comp_set<C>();
     }
 };
 

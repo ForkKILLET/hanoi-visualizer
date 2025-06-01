@@ -1,8 +1,8 @@
 #pragma once
 #include <optional>
+#include <raylib.h>
 #include "core/ecs.hpp"
 #include "utils/delegate.hpp"
-#include "raylib.h"
 
 struct ClickableComp : Comp {
     ClickableComp() = default;

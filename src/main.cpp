@@ -1,10 +1,6 @@
 #include <string>
 #include <raylib.h>
-#include "comps/button.hpp"
-#include "comps/hanoi.hpp"
-#include "comps/hanoi_disk.hpp"
 #include "core/ecs.hpp"
-#include "core/graphic.hpp"
 #include "entities/text.hpp"
 #include "entities/hanoi.hpp"
 #include "entities/button.hpp"
@@ -14,6 +10,10 @@
 #include "comps/box.hpp"
 #include "comps/clickable.hpp"
 #include "comps/updater.hpp"
+#include "comps/button.hpp"
+#include "comps/hanoi.hpp"
+#include "comps/hanoi_disk.hpp"
+#include "services/graphic.hpp"
 #include "systems/animation.hpp"
 #include "systems/button.hpp"
 #include "systems/click.hpp"
@@ -51,6 +51,8 @@ public:
         ecs.register_comp<PaddingComp>();
         ecs.register_comp<ButtonComp>();
         ecs.register_comp<UpdaterComp>();
+
+        auto graphic = ecs.register_service<GraphicService>();
 
         auto custom_update_system = ecs.register_system<CustomUpdateSystem>();
         auto anchor_system = ecs.register_system<AnchorSystem>();
@@ -196,11 +198,13 @@ public:
             .build();
 
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-        InitWindow(graphic::app_width = 800, graphic::app_height = 450, "Hanoi Visualizer");
+        graphic->set_app_size(800, 450);
+        graphic->set_app_title("Hanoi Visualizer");
+        graphic->init_window();
 
         while (! WindowShouldClose()) {
             BeginDrawing();
-                graphic::fit_window();
+                graphic->fit_window();
                 ClearBackground(RAYWHITE);
 
                 custom_update_system->update();

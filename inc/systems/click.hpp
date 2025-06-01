@@ -13,7 +13,4 @@ public:
     void update() override;
 
     static constexpr float MAX_CLICK_DISTANCE = 4.0f;
-
-private:
-    Vector2 mouse_pos_ {};
 };

@@ -1,12 +1,12 @@
 #pragma once
+#include <raylib.h>
 #include "core/ecs.hpp"
 #include "entities/text.hpp"
 #include "entities/padding.hpp"
 #include "entities/border.hpp"
 #include "entities/clickable.hpp"
-#include "button_style.hpp"
-#include "pos.hpp"
-#include "raylib.h"
+#include "entities/button_style.hpp"
+#include "entities/pos.hpp"
 
 class TextButtonBuilder :
     public TextBuilder,
