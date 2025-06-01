@@ -175,7 +175,7 @@ public:
                 .anchor({ 610 + 40, 20 }, TOP_CENTER)
             .as<ClickableBuilder>()
                 .on_click([&] {
-                    if (disk_count == MIN_DISK_COUNT) return;
+                    if (disk_count == MAX_DISK_COUNT) return;
                     set_disk_count(disk_count + 1);
                 })
             .use<UpdaterBuilder>()
