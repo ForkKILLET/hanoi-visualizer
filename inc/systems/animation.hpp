@@ -1,11 +1,13 @@
 #pragma once
 #include "core/ecs.hpp"
 #include "comps/animation.hpp"
+#include "comps/disabled.hpp"
 
 class AnimationSystem : public System {
 public:
     AnimationSystem(ECS& ecs) : System(ecs) {
         with_comp<AnimationComp>();
+        without_comp<DisabledComp>();
     }
 
     void update_anim(Entity entity, Animation& anim, float time_delta);

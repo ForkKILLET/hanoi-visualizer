@@ -11,7 +11,8 @@ void ButtonSystem::update_button_style(
     ButtonCompPtr& button,  ClickableCompPtr& clickable, BorderCompPtr& border, TextCompPtr& text
 ) {
     std::optional<Color> color {};
-    if (button->is_disabled) try_assign(color, button->disabled_color);
+    if (button->is_highlighted) try_assign(color, button->highlight_color);
+    else if (clickable->is_disabled) try_assign(color, button->disabled_color);
     else if (clickable->is_active) try_assign(color, button->active_color);
     else if (clickable->is_hovering) try_assign(color, button->hover_color);
     else try_assign(color, button->normal_color);

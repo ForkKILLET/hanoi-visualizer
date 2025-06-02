@@ -1,5 +1,6 @@
 #include "core/ecs.hpp"
 #include "comps/box.hpp"
+#include "comps/disabled.hpp"
 #include "services/graphic.hpp"
 
 class BorderRenderSystem : public System {
@@ -7,6 +8,7 @@ public:
     BorderRenderSystem(ECS& ecs) : System(ecs) {
         with_comp<BorderComp>();
         with_comp<BoundComp>();
+        without_comp<DisabledComp>();
     }
 
     void update() override {

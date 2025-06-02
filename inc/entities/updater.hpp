@@ -1,3 +1,4 @@
+#include <functional>
 #include "core/ecs.hpp"
 #include "comps/updater.hpp"
 #include "entities/builder.hpp"
@@ -7,8 +8,12 @@ class UpdaterBuilder : virtual public EntityBuilder {
 public:
     using EntityBuilder::EntityBuilder;
 
-    decltype(auto) on_update(UniqueFunction<void, Entity> func) {
+    decltype(auto) on_update(std::function<void (Entity)> func) {
         on_update_ += func;
+        return *this;
+    }
+    decltype(auto) on_update(Delegate<Entity>& func) {
+        on_update_ = func;
         return *this;
     }
 

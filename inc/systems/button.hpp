@@ -3,6 +3,7 @@
 #include "comps/box.hpp"
 #include "comps/button.hpp"
 #include "comps/clickable.hpp"
+#include "comps/disabled.hpp"
 #include "comps/text.hpp"
 
 class ButtonSystem : public System {
@@ -10,6 +11,7 @@ public:
     ButtonSystem(ECS& ecs) : System(ecs) {
         with_comp<BorderComp>();
         with_comp<ButtonComp>();
+        without_comp<DisabledComp>();
     }
 
     void update_button_style(

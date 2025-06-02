@@ -18,6 +18,9 @@ public:
     decltype(auto) active_color(Color color) {
         button_.active_color = color;
     }
+    decltype(auto) highlight_color(Color color) {
+        button_.highlight_color = color;
+    }
 
     Entity build() override {
         ecs.emplace_comp<ButtonComp>(entity, button_);

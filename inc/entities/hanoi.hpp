@@ -15,6 +15,11 @@ public:
         return *this;
     }
 
+    decltype(auto) on_user_solve(Delegate<>& on_user_solve_) {
+        hanoi_.on_user_solve = on_user_solve_;
+        return *this;
+    }
+
     Entity build() override {
         BoundBuilder::build();
         auto hanoi_system = ecs.get_system<HanoiSystem>();
@@ -22,7 +27,8 @@ public:
         auto hanoi_bound = ecs.get_comp<BoundComp>(entity);
         ecs.emplace_comp<TimerComp>(entity, Delegate<> {
             [=] {
-                if (hanoi->is_playing) hanoi_system->step_next(hanoi, hanoi_bound);
+                if (hanoi->is_user_mode || ! hanoi->is_playing) return;
+                hanoi_system->step_next(hanoi, hanoi_bound);
             }
         }, 0.6f);
         return entity;

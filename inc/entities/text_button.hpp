@@ -34,6 +34,7 @@ public:
         disabled_color(LIGHTGRAY);
         active_color(DARKBLUE);
         hover_color(BLUE);
+        highlight_color(BLUE);
     }
 
     Entity build() override {

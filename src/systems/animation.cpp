@@ -46,6 +46,7 @@ void AnimationSystem::update_anim_track(
         switch (anim.mode) {
             case ANIMATION_MODE_ONCE:
                 anim.state.is_finished = true;
+                anim.on_finish();
                 break;
             case ANIMATION_MODE_LOOP_REVERSE:
                 anim.state.is_reversed = ! anim.state.is_reversed;

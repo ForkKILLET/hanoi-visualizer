@@ -14,7 +14,7 @@ static constexpr float ROD_GAP = 10.f;
 static constexpr float HANOI_WIDTH = 3 * ROD_WIDTH + 2 * ROD_GAP;
 
 static constexpr DiskId MIN_DISK_COUNT = 1;
-static constexpr DiskId MAX_DISK_COUNT = 16;
+static constexpr DiskId MAX_DISK_COUNT = 10;
 
 class HanoiSolution {
 public:

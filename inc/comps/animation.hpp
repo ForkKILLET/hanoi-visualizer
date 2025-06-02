@@ -2,6 +2,7 @@
 #include <vector>
 #include "core/ecs.hpp"
 #include "core/lens.hpp"
+#include "utils/delegate.hpp"
 #include "utils/vector.hpp" // IWYU pragma: keep
 #include "utils/timing_func.hpp"
 
@@ -46,6 +47,8 @@ struct Animation {
     AnimationMode mode;
     AnyAnimationTrack track;
     AnimationState state {};
+
+    Delegate<> on_finish {};
 };
 
 struct AnimationComp : public Comp {

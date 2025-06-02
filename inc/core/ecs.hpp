@@ -18,6 +18,11 @@ constexpr size_t MAX_SYSTEM_COUNT = 64;
 using Entity = size_t;
 using CompSig = std::bitset<MAX_COMP_COUNT>;
 
+struct CompFilter {
+    CompSig sig {};
+    CompSig sig_exclude {};
+};
+
 class System;
 class ECS;
 class EntityBuilder;
@@ -67,10 +72,17 @@ public:
     void remove_comp(Entity entity) {
         check_entity(entity);
         size_t index = entity_to_index[entity];
-        entity_to_index[entity] = 0;
-        size --;
-        index_to_entity[index] = index_to_entity[size];
-        comps[index] = comps[size];
+        if (! index)
+            throw std::runtime_error(std::format("Entity {} does not have a {} component.", entity, typeid(C).name()));
+        do_remove_comp(entity, index);
+    }
+
+    bool remove_comp_or_ignore(Entity entity) {
+        check_entity(entity);
+        size_t index = entity_to_index[entity];
+        if (! index) return false;
+        do_remove_comp(entity, index);
+        return true;
     }
 
 private:
@@ -100,6 +112,13 @@ private:
         ++ size;
         entity_to_index[entity] = size;
         index_to_entity[size] = entity;
+    }
+
+    void do_remove_comp(Entity entity, size_t index) {
+        entity_to_index[entity] = 0;
+        size --;
+        index_to_entity[index] = index_to_entity[size];
+        comps[index] = comps[size];
     }
 };
 
@@ -168,9 +187,10 @@ public:
         return entity_exists[entity];
     }
 
-    bool entity_matches_sig(Entity entity, CompSig sig) const {
+    bool entity_matches(Entity entity, const CompFilter& filter) const {
         assert_entity_exists(entity);
-        return (entity_sigs[entity] & sig) == sig;
+        return (entity_sigs[entity] & filter.sig) == filter.sig
+            && (entity_sigs[entity] & filter.sig_exclude) == 0;
     }
 
     Entity create_entity() {
@@ -206,9 +226,9 @@ class EntityView {
 public:
     class Iterator {
     public:
-        Iterator(Entity entity, const CompSig& sig, ECS& ecs) :
+        Iterator(Entity entity, const CompFilter& filter, ECS& ecs) :
             entity(entity),
-            sig(sig),
+            filter(filter),
             ecs(ecs)
         {}
 
@@ -220,7 +240,7 @@ public:
 
     private:
         Entity entity;
-        const CompSig& sig;
+        const CompFilter& filter;
         ECS& ecs;
     };
 
@@ -241,11 +261,15 @@ class System {
 public:
     System(ECS& ecs) : ecs(ecs) {}
 
-    template <typename... Cs>
-    requires (std::derived_from<Cs, Comp> && ...)
+    template <typename C>
+    requires std::derived_from<C, Comp>
     decltype(auto) with_comp();
 
-    const CompSig& sig() { return sig_; }
+    template <typename C>
+    requires std::derived_from<C, Comp>
+    decltype(auto) without_comp();
+
+    const CompFilter& get_filter() { return filter; }
 
     EntityView entities();
     virtual void update() = 0;
@@ -254,7 +278,7 @@ protected:
     ECS& ecs;
 
 private:
-    CompSig sig_ {};
+    CompFilter filter {};
 };
 
 class SystemManager {
@@ -357,6 +381,14 @@ public:
 
     template <typename C>
     requires std::derived_from<C, Comp>
+    bool remove_comp_or_ignore(Entity entity) {
+        if (! get_comp_set<C>()->remove_comp_or_ignore(entity)) return false;
+        update_entity_sig<C, false>(entity);
+        return true;
+    }
+
+    template <typename C>
+    requires std::derived_from<C, Comp>
     std::shared_ptr<C> get_comp(Entity entity) {
         return get_comp_set<C>()->get_comp(entity);
     }
@@ -389,8 +421,8 @@ public:
     const EntityManager::EntityExistsMap& entity_exists_map() const {
         return entity_manager.entity_exists;
     }
-    bool entity_matches_sig(Entity entity, CompSig sig) const {
-        return entity_manager.entity_matches_sig(entity, sig);
+    bool entity_matches(Entity entity, CompFilter filter) const {
+        return entity_manager.entity_matches(entity, filter);
     }
 
     template <typename C>
@@ -445,10 +477,17 @@ private:
     }
 };
 
-template <typename... Cs>
-requires (std::derived_from<Cs, Comp> && ...)
+template <typename C>
+requires std::derived_from<C, Comp>
 decltype(auto) System::with_comp() {
-    ((sig_.set(ecs.get_comp_index<Cs>(), true)), ...);
+    filter.sig.set(ecs.get_comp_index<C>(), true);
+    return this;
+}
+
+template <typename C>
+requires std::derived_from<C, Comp>
+decltype(auto) System::without_comp() {
+    filter.sig_exclude.set(ecs.get_comp_index<C>(), true);
     return this;
 }
 
@@ -457,12 +496,12 @@ inline EntityView System::entities() {
 }
 
 inline EntityView::Iterator EntityView::begin() {
-    auto it = Iterator(0, system.sig(), ecs);
+    auto it = Iterator(0, system.get_filter(), ecs);
     ++ it;
     return it;
 }
 inline EntityView::Iterator EntityView::end() {
-    return Iterator(MAX_ENTITY_COUNT, system.sig(), ecs);
+    return Iterator(MAX_ENTITY_COUNT, system.get_filter(), ecs);
 }
 
 inline EntityView::Iterator& EntityView::Iterator::operator++() {
@@ -471,7 +510,7 @@ inline EntityView::Iterator& EntityView::Iterator::operator++() {
         ++ entity;
         if (entity == MAX_ENTITY_COUNT) break;
         if (! entity_exists[entity]) continue;
-        if (ecs.entity_matches_sig(entity, sig)) break;
+        if (ecs.entity_matches(entity, filter)) break;
     }
     return *this;
 }

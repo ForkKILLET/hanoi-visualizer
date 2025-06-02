@@ -12,14 +12,18 @@ void HanoiDiskRenderSystem::update() {
 
         auto rec = bound->get_rect();
         graphic->fill_rect(rec, WHITE);
-        graphic->stroke_rect(rec, BLACK, 1);
+        Color color = disk->is_phantom
+            ? LIGHTGRAY
+            : disk->is_highlighted ? BLUE : BLACK;
+        graphic->stroke_rect(rec, color, 1);
 
+        if (disk->is_phantom) continue;
         const auto& id_str = disk->id_str;
         int text_width = graphic->measure_text_0(id_str, 20);
         graphic->draw_text(
             id_str,
             bound->pos + Vector2 { (bound->size.width - text_width) / 2, 1 },
-            BLACK, 20
+            color, 20
         );
     }
 }

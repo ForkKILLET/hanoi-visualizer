@@ -1,14 +1,13 @@
 #pragma once
-#include "core/ecs.hpp"
+
+#include "comps/clock.hpp"
 #include "comps/disabled.hpp"
 #include "comps/text.hpp"
-#include "comps/box.hpp"
-
-class TextTypesettingSystem : public System {
+class ClockRenderSystem : public System {
 public:
-    TextTypesettingSystem(ECS& ecs) : System(ecs) {
+    ClockRenderSystem(ECS& ecs) : System(ecs) {
+        with_comp<ClockComp>();
         with_comp<TextComp>();
-        with_comp<BoundComp>();
         without_comp<DisabledComp>();
     }
 
