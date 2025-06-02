@@ -36,6 +36,9 @@ concept is_comp = std::derived_from<C, Comp>;
 
 struct ICompSet {
     virtual ~ICompSet() = default;
+
+    virtual void remove_comp(Entity entity) = 0;
+    virtual bool remove_comp_or_ignore(Entity entity) = 0;
 };
 
 template <typename C>
@@ -175,7 +178,7 @@ public:
             available_ids.push(id);
     }
 
-    void assert_entity_exists(Entity entity) const {
+    void check_entity_exists(Entity entity) const {
         if (! entity_is_valid(entity))
             throw std::runtime_error(std::format("Entity {} does not exist.", entity));
     }
@@ -188,7 +191,7 @@ public:
     }
 
     bool entity_matches(Entity entity, const CompFilter& filter) const {
-        assert_entity_exists(entity);
+        check_entity_exists(entity);
         return (entity_sigs[entity] & filter.sig) == filter.sig
             && (entity_sigs[entity] & filter.sig_exclude) == 0;
     }
@@ -206,7 +209,7 @@ public:
     }
 
     void destroy_entity(Entity entity) {
-        assert_entity_exists(entity);
+        check_entity_exists(entity);
 
         -- living_entites_count;
         entity_exists[entity] = false;
@@ -416,6 +419,9 @@ public:
     }
     void destroy_entity(Entity entity) {
         entity_manager.destroy_entity(entity);
+        for (auto& [ _, comp_set ] : comp_manager.comp_sets) {
+            comp_set->remove_comp_or_ignore(entity);
+        }
     }
 
     const EntityManager::EntityExistsMap& entity_exists_map() const {
