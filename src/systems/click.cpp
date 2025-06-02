@@ -51,8 +51,8 @@ void ClickSystem::update() {
 
     int cursor = MOUSE_CURSOR_DEFAULT;
     if (hovered_entity) {
-        if (! ecs.get_comp<ClickableComp>(*hovered_entity)->is_disabled)
-            cursor = MOUSE_CURSOR_POINTING_HAND;
+        auto clickable = ecs.get_comp_or_null<ClickableComp>(*hovered_entity);
+        if (clickable && ! clickable->is_disabled) cursor = MOUSE_CURSOR_POINTING_HAND;
     }
     graphic->set_cursor(cursor);
 }
